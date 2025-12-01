@@ -1,0 +1,37 @@
+BEGIN
+
+DISPLAY game container
+DISPLAY instructions: "Match all pairs!"
+
+DECLARE symbols = [list of emojis]
+SHUFFLE symbols
+SELECT 8 random symbols
+CREATE deck = duplicate chosen symbols → total 16 cards
+SHUFFLE deck
+
+DECLARE flipped = empty list
+DECLARE matched = empty list
+
+------------------------------------
+FOR each card in deck:
+    CREATE card element
+    SET card face down ('?')
+    ASSIGN onclick handler:
+        IF flipped.length < 2 AND card not in flipped AND card not in matched:
+            REVEAL card (show symbol)
+            ADD card to flipped
+            IF flipped.length == 2:
+                IF flipped[0] symbol == flipped[1] symbol:
+                    ADD flipped cards to matched
+                    CLEAR flipped
+                    IF matched.length == deck.length:
+                        ALERT "All matched!"
+                ELSE:
+                    WAIT 1 second
+                    FLIP both flipped cards back ('?')
+                    CLEAR flipped
+        END IF
+    ADD card to game container
+END FOR
+
+END
