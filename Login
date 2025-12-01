@@ -1,0 +1,75 @@
+BEGIN PAGE "EduBoard — Login"
+
+DISPLAY login card:
+    Title: "Login"
+    Subtitle: "Login with your registered email & password"
+
+DISPLAY input fields:
+    - Email
+    - Password
+
+DISPLAY:
+    - Login button → calls login()
+    - Link: Back to role selection
+
+------------------------------------
+FUNCTION getUsers()
+------------------------------------
+READ data from localStorage key "edu_users"
+IF data exists:
+    RETURN parsed JSON array
+ELSE:
+    RETURN empty array
+END FUNCTION
+
+------------------------------------
+FUNCTION login()
+------------------------------------
+READ email_input from Email field
+READ pwd_input from Password field
+
+SET users = getUsers()
+
+SEARCH in users:
+    FIND user WHERE user.email == email_input 
+                 AND user.password == pwd_input
+
+IF user NOT FOUND:
+    SHOW alert "Invalid credentials"
+    EXIT function
+
+------------------------------------
+IF user IS A TEACHER AND NO assignedClass saved:
+------------------------------------
+    PROMPT teacher: 
+        "Enter the class you teach (example: 9)"
+    IF teacher enters class:
+        SAVE this class as user.assignedClass
+        UPDATE the users array
+        STORE updated users back in localStorage
+
+------------------------------------
+SET SESSION DATA
+------------------------------------
+CREATE session object:
+    email = user.email
+    role  = user.role
+    name  = user.name
+    cls   = user.cls (if student) else null
+
+STORE session in localStorage as "edu_session"
+
+SHOW alert: "Login successful! Redirecting to dashboard..."
+
+------------------------------------
+REDIRECT BASED ON ROLE
+------------------------------------
+IF user.role == "student":
+       REDIRECT → student_dashboard.html
+ELSE:
+       REDIRECT → teacher_dashboard.html
+END IF
+
+END FUNCTION
+
+END PAGE
