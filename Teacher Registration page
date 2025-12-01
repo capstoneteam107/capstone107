@@ -1,0 +1,85 @@
+BEGIN PAGE "EduBoard — Teacher Registration"
+
+DISPLAY form fields:
+    - Full Name
+    - Email ID
+    - Mobile Number
+    - Highest Qualification
+    - School Name
+    - Password
+
+DISPLAY buttons:
+    - Back → index.html
+    - Register Teacher → calls registerTeacher()
+
+------------------------------------
+FUNCTION getUsers()
+------------------------------------
+READ "edu_users" from localStorage
+IF value exists:
+      RETURN parsed JSON array
+ELSE:
+      RETURN empty array
+
+------------------------------------
+FUNCTION saveUsers(users)
+------------------------------------
+SAVE users into localStorage under key "edu_users"
+
+------------------------------------
+FUNCTION registerTeacher(event)
+------------------------------------
+PREVENT default form submission
+
+READ:
+    name   = tname field
+    email  = temail field
+    mobile = tmobile field
+    qual   = qual field
+    school = tschool field
+    pwd    = tpassword field
+
+LOAD users = getUsers()
+
+CHECK if email already exists:
+    IF any user.email == entered email:
+          SHOW alert "Email already registered"
+          STOP execution
+
+CREATE newUser object:
+    role           = "teacher"
+    name           = name
+    email          = email
+    mobile         = mobile
+    qual           = qualification
+    school         = school name
+    password       = pwd
+    registeredAt   = current datetime in ISO format
+    assignedClass  = null    // will be asked at first login
+
+ADD newUser to users list
+
+SAVE updated users using saveUsers(users)
+
+SHOW alert "Teacher registered!"
+
+------------------------------------
+SEND EMAIL (demo behavior)
+------------------------------------
+CREATE subject string: "EduBoard — Teacher Registration"
+CREATE body string: "Hello <name>... Login using <email>."
+
+OPEN default mail client with:
+    mailto:<email>?subject=<subject>&body=<body>
+
+------------------------------------
+REDIRECT
+------------------------------------
+WAIT 400 milliseconds
+REDIRECT to login.html
+
+RETURN false (prevent default submit)
+
+END FUNCTION
+
+END PAGE
