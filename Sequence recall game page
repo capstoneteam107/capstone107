@@ -1,0 +1,63 @@
+BEGIN
+
+DISPLAY 3×3 grid of 9 cells
+DISPLAY button: "Start"
+
+DECLARE sequence = empty list
+DECLARE player = empty list
+DECLARE cells = list of 9 grid cells
+
+------------------------------------
+FUNCTION startGame()
+------------------------------------
+CLEAR sequence
+CLEAR player input
+CALL nextRound()
+END FUNCTION
+
+------------------------------------
+FUNCTION nextRound()
+------------------------------------
+CLEAR player input
+ADD random number between 0 and 8 to sequence  // represents next cell in sequence
+CALL showSequence()
+END FUNCTION
+
+------------------------------------
+FUNCTION showSequence()
+------------------------------------
+SET i = 0
+FOR each index in sequence:
+    HIGHLIGHT cells[sequence[i]] for 500ms
+    UNHIGHLIGHT after 500ms
+    WAIT 1000ms between highlights
+END FOR
+CALL enableInput()
+END FUNCTION
+
+------------------------------------
+FUNCTION enableInput()
+------------------------------------
+FOR each cell in cells:
+    ASSIGN onclick:
+        ADD clicked cell index to player list
+        CALL check()
+END FOR
+END FUNCTION
+
+------------------------------------
+FUNCTION check()
+------------------------------------
+FOR i from 0 to length of player - 1:
+    IF player[i] != sequence[i]:
+        ALERT "Wrong! Final score: " + (sequence length - 1)
+        END GAME
+END FOR
+
+IF length of player == length of sequence:
+    WAIT 1 second
+    CALL nextRound()
+END IF
+END FUNCTION
+
+END
