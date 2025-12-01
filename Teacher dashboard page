@@ -1,0 +1,115 @@
+BEGIN
+
+LOAD teacher session from localStorage
+IF session not found OR role != 'teacher' THEN
+    ALERT "Teacher session not found. Please login"
+    REDIRECT to login.html
+END IF
+
+DISPLAY teacher name and assigned class in header
+SET teacher mobile number from user data
+
+------------------------------------
+SECTION: Create Quiz
+
+DECLARE qCount = 0
+FUNCTION addQuestion()
+    IF qCount >= 10 THEN
+        ALERT "Maximum 10 questions"
+        RETURN
+    END IF
+    CREATE input fields for question text and 4 options
+    CREATE dropdown to select correct option (0-3)
+    ADD to questions container
+    INCREMENT qCount
+END FUNCTION
+
+FUNCTION postQuiz()
+    READ target class, subject, teacher mobile
+    IF target class or subject empty THEN
+        ALERT "Select target class and enter subject"
+        RETURN
+    END IF
+
+    GET all questions from questions container
+    IF no questions OR >10 THEN
+        ALERT "Add up to 10 questions"
+        RETURN
+    END IF
+
+    FOR each question element:
+        READ question text, options array, correct option
+        IF any field empty THEN
+            ALERT "Fill all question fields and select correct option"
+            RETURN
+        END IF
+        ADD question object to quiz array
+    END FOR
+
+    CREATE quiz object with:
+        id, subject, teacher info, target class, questions, postedAt
+    SAVE quiz object to localStorage
+    ALERT "Quiz posted"
+    RESET form inputs
+    RENDER uploaded quizzes list
+END FUNCTION
+
+FUNCTION renderUploadedQuizzes()
+    GET all quizzes from localStorage
+    FILTER quizzes by teacher email
+    IF none THEN
+        DISPLAY "No quizzes posted"
+    ELSE
+        DISPLAY list of quizzes with subject, class, posted date
+    END IF
+END FUNCTION
+
+------------------------------------
+SECTION: Upload Notes
+
+FUNCTION uploadNote()
+    READ target class, note title, text notes
+    IF target class or title empty THEN
+        ALERT "Select target class and title"
+        RETURN
+    END IF
+
+    IF PDF file selected THEN
+        CONVERT file to DataURL
+    END IF
+
+    CREATE note object with:
+        id, title, teacher info, target class, text, pdfDataUrl, postedAt
+    SAVE note object to localStorage
+    ALERT "Note uploaded"
+    RESET input fields
+END FUNCTION
+
+FUNCTION toDataURL(file)
+    READ file as DataURL using FileReader
+    RETURN DataURL
+END FUNCTION
+
+------------------------------------
+SECTION: Track Results
+
+FUNCTION renderResultsTrack()
+    GET all student results from localStorage
+    GET teacher's assigned class
+    FILTER results by students in this class
+    IF no results THEN
+        DISPLAY "No student attempts yet"
+        RETURN
+    END IF
+
+    SORT results by score descending, time taken ascending
+    DISPLAY results as list with:
+        student name, email, subject, score, time taken, attempt date
+END FUNCTION
+
+------------------------------------
+INITIALIZE
+CALL renderUploadedQuizzes()
+CALL renderResultsTrack()
+
+END
