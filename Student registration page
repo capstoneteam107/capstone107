@@ -1,0 +1,93 @@
+BEGIN PAGE "EduBoard — Student Registration"
+
+DISPLAY form fields:
+    - Full Name
+    - Roll Number
+    - Class (dropdown)
+    - Email ID
+    - Mobile Number
+    - School Name
+    - Password
+    - Confirm Password
+
+DISPLAY:
+    - Back button → index.html
+    - Register Student button → calls registerStudent()
+
+------------------------------------
+FUNCTION getUsers()
+------------------------------------
+READ "edu_users" from localStorage
+IF data exists:
+      RETURN parsed JSON array
+ELSE:
+      RETURN empty array
+
+------------------------------------
+FUNCTION saveUsers(users)
+------------------------------------
+SAVE users array into localStorage as "edu_users"
+
+------------------------------------
+FUNCTION registerStudent(event)
+------------------------------------
+PREVENT form default submission
+
+READ: 
+    name       = value from Full Name field
+    roll       = value from Roll Number field
+    cls        = value from Class dropdown
+    email      = value from Email field
+    mobile     = value from Mobile field
+    school     = value from School Name field
+    pwd        = Password field
+    pwd2       = Confirm Password field
+
+IF pwd != pwd2:
+       SHOW alert "Passwords do not match"
+       STOP execution
+
+LOAD users = getUsers()
+
+IF any user in users has email == entered email:
+       SHOW alert "Email already registered"
+       STOP execution
+
+CREATE newUser:
+       role = "student"
+       name = name
+       roll = roll
+       cls = cls
+       email = email
+       mobile = mobile
+       school = school
+       password = pwd
+       registeredAt = current date-time in ISO format
+
+APPEND newUser to users
+SAVE updated users using saveUsers(users)
+
+SHOW alert "Registration successful!"
+
+------------------------------------
+SEND CONFIRMATION (demo actions)
+------------------------------------
+CREATE email subject string
+CREATE email body string
+CREATE mailto link
+
+OPEN mail client using mailto link
+
+OPTIONALLY create SMS link for mobile devices
+
+------------------------------------
+REDIRECT
+------------------------------------
+WAIT 400 milliseconds
+REDIRECT user → login.html
+
+RETURN false (prevent default form behavior)
+
+END FUNCTION
+
+END PAGE
