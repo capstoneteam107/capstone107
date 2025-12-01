@@ -1,0 +1,103 @@
+BEGIN
+
+DISPLAY difficulty dropdown:
+    - Easy  (20 seconds preview)
+    - Medium (20 seconds preview)
+    - Hard  (10 seconds preview)
+
+DISPLAY button: "Start"
+
+DECLARE board element
+DECLARE solution = empty 9×9
+
+------------------------------------
+FUNCTION generateFullBoard()
+------------------------------------
+CREATE 9×9 array 'arr' filled with zeros
+
+FUNCTION canPlace(row, col, num):
+    FOR each index i from 0 to 8:
+        IF arr[row][i] == num → return false
+        IF arr[i][col] == num → return false
+    END FOR
+
+    SET startRow = (row // 3) * 3
+    SET startCol = (col // 3) * 3
+    FOR i in 0..2:
+        FOR j in 0..2:
+            IF arr[startRow+i][startCol+j] == num → return false
+        END FOR
+    END FOR
+    RETURN true
+END FUNCTION
+
+FUNCTION solve(position):
+    IF position == 81 → puzzle complete → return true
+    SET row = position // 9
+    SET col = position % 9
+
+    IF arr[row][col] is not zero:
+        RETURN solve(position + 1)
+
+    CREATE list NUMS = 1..9 shuffled randomly
+    FOR each number in NUMS:
+        IF canPlace(row, col, number):
+            SET arr[row][col] = number
+            IF solve(position + 1) → return true
+            ELSE arr[row][col] = 0
+    END FOR
+
+    RETURN false
+END FUNCTION
+
+CALL solve()
+RETURN arr (completed Sudoku board)
+END FUNCTION
+
+------------------------------------
+FUNCTION startSudoku()
+------------------------------------
+CLEAR board UI
+
+solution = generateFullBoard()
+
+READ difficulty
+IF easy → blanks = 30
+IF medium → blanks = 40
+IF hard → blanks = 50
+
+COPY solution into puzzle
+
+RANDOMLY choose 'blanks' number of cells:
+    SET those cells in puzzle to 0 (empty)
+
+FOR each row r from 0..8:
+    CREATE table row element
+    FOR each column c from 0..8:
+        IF puzzle[r][c] != 0:
+            CREATE readonly input with value (fixed clue)
+        ELSE:
+            CREATE editable input
+        ADD cell to UI table
+    END FOR
+END FOR
+
+END FUNCTION
+
+------------------------------------
+FUNCTION checkSudoku()
+------------------------------------
+FOR each row r from 0..8:
+    FOR each col c from 0..8:
+        GET user value from table cell
+        IF user value != solution[r][c]:
+            SHOW alert "Incorrect solution!"
+            STOP
+    END FOR
+END FOR
+
+SHOW alert "Correct! Well done!"
+
+END FUNCTION
+
+END
