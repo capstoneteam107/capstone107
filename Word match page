@@ -1,0 +1,68 @@
+BEGIN
+
+// Step 1: Define pool of synonym pairs
+POOL = [
+  [big, large], [small, tiny], [happy, joyful],
+  [fast, quick], [cold, chilly], [smart, clever],
+  [angry, mad], [rich, wealthy], [strong, powerful],
+  [safe, secure], [bright, luminous], [dark, dim]
+]
+
+// Step 2: Randomly choose 6 synonym pairs
+CHOSEN = shuffle(POOL)
+CHOSEN = first 6 pairs of shuffled list
+
+// Step 3: Build word list by splitting pairs
+WORDS = empty list
+FOR each pair P in CHOSEN:
+    ADD both words of P into WORDS
+END FOR
+
+// Step 4: Create game deck and shuffle words
+DECK = shuffle(WORDS)
+
+// Step 5: Initialize gameplay arrays
+FLIPPED = empty list   // cards currently face-up
+MATCHED = empty list   // cards already matched
+
+// Step 6: Function to find which pair a word belongs to
+FUNCTION findPair(word):
+    RETURN the pair from CHOSEN that contains 'word'
+END FUNCTION
+
+// Step 7: Create cards on the screen
+FOR each word W in DECK:
+    CREATE card element displaying W
+    ON card click:
+        IF:
+            - fewer than 2 cards are flipped AND
+            - this card is not already flipped AND
+            - this card is not already matched
+        THEN:
+            mark card as flipped (change color)
+            ADD card to FLIPPED
+
+            // When two cards are flipped
+            IF FLIPPED has 2 cards:
+                pair1 = findPair(FLIPPED[0].word)
+                pair2 = findPair(FLIPPED[1].word)
+
+                IF pair1 == pair2 THEN
+                    // correct match
+                    ADD both cards to MATCHED
+                    CLEAR FLIPPED
+
+                    IF MATCHED count equals DECK size:
+                        SHOW "All matched!"
+                    END IF
+                ELSE
+                    // wrong match → flip back after delay
+                    WAIT 1 second
+                    UNFLIP both cards
+                    CLEAR FLIPPED
+                END IF
+            END IF
+        END IF
+END FOR
+
+END
