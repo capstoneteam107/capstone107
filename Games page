@@ -1,0 +1,69 @@
+BEGIN
+
+FUNCTION getSession():
+    RETURN parsed value of "edu_session" from localStorage
+
+// Step 1: Check login session
+session = getSession()
+IF session is null THEN
+    SHOW alert "Login required"
+    REDIRECT to login.html
+END IF
+
+DISPLAY session.name in userbox element
+
+// Step 2: Get today's date in YYYY-MM-DD
+today = current date formatted as "yyyy-mm-dd"
+
+// Step 3: Fetch stored quiz record
+lastQuiz = value of "edu_quiz_record" from localStorage (parsed)
+
+// Step 4: Determine unlocked score
+IF lastQuiz exists AND lastQuiz.date == today THEN
+    unlockedScore = lastQuiz.score
+ELSE
+    unlockedScore = 0   // no quiz → all games locked
+END IF
+
+// Step 5: Convert score into number of games unlocked
+IF unlockedScore >= 9 THEN
+    gamesUnlocked = 5
+ELSE IF unlockedScore == 8 THEN
+    gamesUnlocked = 3
+ELSE IF unlockedScore == 7 THEN
+    gamesUnlocked = 2
+ELSE IF unlockedScore == 6 THEN
+    gamesUnlocked = 1
+ELSE
+    gamesUnlocked = 0
+END IF
+
+// Step 6: List all available games
+games = [
+    Game1, Game2, Game3, Game4, Game5
+]
+
+// Step 7: Build game tiles
+FOR each game g at index i:
+    allowed = (i < gamesUnlocked)
+
+    CREATE tile element
+    SET tile title = g.name
+    SET tile description = g.desc
+    SET tile note showing unlockedScore OR “No quiz yet”
+
+    IF allowed THEN
+         ENABLE play button
+         SET button action to open g.file
+    ELSE
+         DISABLE play button
+         ADD "locked" styling
+    END IF
+
+    ADD tile to page grid
+END FOR
+
+FUNCTION openGame(file):
+    REDIRECT to the given game HTML file
+
+END
