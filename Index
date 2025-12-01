@@ -1,0 +1,62 @@
+BEGIN PAGE "EduBoard Role Selection"
+
+SET page_title = "EduBoard — Role Selection"
+
+DISPLAY container with two sections:
+    1. Brand Section (Left)
+    2. Actions Section (Right)
+
+-------------------------------
+SECTION 1: BRAND AREA
+-------------------------------
+DISPLAY logo "EduBoard"
+
+DISPLAY heading "Welcome to EduBoard"
+
+DISPLAY paragraph explaining:
+    - Why students enjoy EduBoard
+    - Fun quizzes → unlock games
+    - Interactive learning
+
+DISPLAY paragraph explaining:
+    - Why teachers use EduBoard
+    - Upload notes, create quizzes
+    - Improve student engagement
+
+-------------------------------
+SECTION 2: ACTIONS AREA
+-------------------------------
+DISPLAY heading: "Select your role"
+
+CREATE role selection card list:
+    OPTION 1:
+        Title: "Register as Student"
+        Subtitle: "Create student account with class & roll number"
+        ON CLICK → go("student_register.html")
+
+    OPTION 2:
+        Title: "Register as Teacher"
+        Subtitle: "Create teacher account to upload notes & create quizzes"
+        ON CLICK → go("teacher_register.html")
+
+DISPLAY button:
+    TEXT: "Already registered? Login"
+    LINK: login.html
+
+-------------------------------
+FOOTER SECTION
+-------------------------------
+DISPLAY tagline:
+    "EduBoard — Where knowledge meets fun..."
+
+DISPLAY copyright:
+    "© 2025 EduBoard. All Rights Reserved."
+
+-------------------------------
+FUNCTION: go(target_page)
+-------------------------------
+WHEN user clicks a role option:
+    SET window.location.href = target_page
+END FUNCTION
+
+END PAGE
