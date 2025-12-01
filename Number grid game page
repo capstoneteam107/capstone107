@@ -1,0 +1,55 @@
+BEGIN
+
+DISPLAY grid container
+DISPLAY difficulty selector (easy/medium/hard)
+DISPLAY "Start" button
+
+DECLARE expected = 1
+DECLARE numbers = empty list
+DECLARE previewTime
+
+------------------------------------
+FUNCTION startGame()
+------------------------------------
+CLEAR grid
+SET expected = 1
+
+GET selected difficulty
+IF easy: maxNum = 25, previewTime = 20000ms
+IF medium: maxNum = 36, previewTime = 20000ms
+IF hard: maxNum = 49, previewTime = 10000ms
+
+GENERATE numbers array from 1 to maxNum
+SHUFFLE numbers array
+
+FOR each number n in numbers:
+    CREATE cell element
+    DISPLAY n in cell
+    ADD cell to grid
+END FOR
+
+WAIT previewTime milliseconds
+FOR each cell in grid:
+    HIDE number (replace with '?')
+END FOR
+
+CALL enableClick()
+END FUNCTION
+
+------------------------------------
+FUNCTION enableClick()
+------------------------------------
+FOR each cell in grid:
+    ASSIGN onclick:
+        GET number in cell (n)
+        IF n == expected:
+            MARK cell as correct (✔)
+            INCREMENT expected
+            IF expected > length of numbers:
+                ALERT "Completed!"
+        ELSE:
+            ALERT "Wrong!"
+END FOR
+END FUNCTION
+
+END
