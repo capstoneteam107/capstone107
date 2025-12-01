@@ -1,0 +1,181 @@
+BEGIN PAGE "Student Dashboard"
+
+--------------------------------
+LOAD SESSION
+--------------------------------
+CALL getSession()
+IF no session:
+      SHOW alert "No active session"
+      REDIRECT to login.html
+
+DISPLAY student name and class in header
+
+CALL renderQuizzes()
+CALL renderNotes()
+CALL renderResults()
+
+--------------------------------
+FUNCTION getSession()
+--------------------------------
+READ "edu_session" from localStorage
+RETURN parsed object or null
+
+--------------------------------
+FUNCTION getUsers()
+FUNCTION getQuizzes()
+FUNCTION getNotes()
+FUNCTION getResults()
+--------------------------------
+Each reads and returns corresponding localStorage array
+If empty, return empty list
+
+FUNCTION saveResults(list)
+    WRITE list into "edu_results" in localStorage
+
+--------------------------------
+FUNCTION renderQuizzes()
+--------------------------------
+LOAD all quizzes from storage
+FILTER quizzes where targetClass == student.class
+IF none:
+      DISPLAY "Nothing uploaded for your class yet"
+      STOP
+
+FOR each quiz:
+      COMPUTE postedAt difference from now
+      IF posted within 24 hours → AVAILABLE
+      ELSE CLOSED
+
+      DISPLAY quiz card with:
+          - subject
+          - teacher name and mobile
+          - posted date/time
+          - status (available/closed)
+          - IF available: "Attempt" button that calls openQuiz(id)
+          - ELSE: disabled button
+
+--------------------------------
+FUNCTION renderNotes()
+--------------------------------
+LOAD notes from storage
+FILTER by targetClass == student.class
+IF none:
+      DISPLAY "Nothing uploaded for your class yet"
+      STOP
+
+FOR each note:
+      DISPLAY:
+          - title
+          - teacher name
+          - posted date/time
+          - IF pdf exists → show "Download PDF"
+          - IF text exists → show truncated preview
+
+--------------------------------
+FUNCTION renderResults()
+--------------------------------
+LOAD all results
+FILTER by studentEmail == sess.email
+IF none:
+      DISPLAY "No quiz attempts yet"
+      STOP
+
+SORT results by:
+      highest score → lowest
+      then faster time → slower
+
+DISPLAY list:
+      subject — score — timeTaken — date
+
+CALCULATE best score
+SAVE best score to "edu_games_unlocked"
+UPDATE gamesArea with:
+      “Best score: X, Open Games Page”
+
+--------------------------------
+FUNCTION openQuiz(quizId)
+--------------------------------
+FIND quiz by id
+SET quiz title text
+SET metadata: teacherName, teacherMobile, postedAt
+
+CLEAR quizForm
+
+FOR each question:
+      CREATE:
+          - question text
+          - 4 radio options
+
+SHOW quiz modal
+
+START 10-minute timer:
+      CALL startTimer(600, onExpire):
+            WHEN expired → alert "Time Up!"
+            → submitQuiz(id)
+
+STORE quizId inside form.dataset.quizId
+
+--------------------------------
+FUNCTION startTimer(seconds, onExpire)
+--------------------------------
+CLEAR any previous timers
+SET counter = seconds
+CALL updateTimerDisplay(counter)
+EVERY 1 sec:
+      counter--
+      IF counter < 0:
+            STOP timer
+            CALL onExpire()
+      ELSE
+            CALL updateTimerDisplay(counter)
+
+--------------------------------
+FUNCTION updateTimerDisplay(seconds)
+--------------------------------
+DISPLAY mm:ss format
+SAVE remaining seconds in "#timer".dataset.rem
+
+--------------------------------
+FUNCTION showModal()
+    SET quizModal display = "flex"
+
+FUNCTION closeModal()
+    SET quizModal display = "none"
+    STOP timer
+
+--------------------------------
+FUNCTION submitQuiz(optional forcedId)
+--------------------------------
+DETERMINE quizId = forcedId OR form.dataset.quizId
+FIND quiz object
+
+INIT score = 0
+GET remaining seconds from timer display
+CALCULATE timeTaken = 600 - remainingSec
+
+FOR each question index:
+      READ selected radio value
+      IF selected == correct answer:
+            score++
+
+APPEND result object:
+      {
+        quizId,
+        studentEmail,
+        studentName,
+        subject,
+        score,
+        at: current timestamp,
+        timeTaken
+      }
+
+SAVE updated results list
+
+STORE daily unlock score:
+      today = current date only (YYYY-MM-DD)
+      SAVE {score, date:today} into "edu_quiz_record"
+
+SHOW alert with score
+CLOSE modal
+REFRESH results view
+REFRESH quiz list
